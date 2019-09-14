@@ -3,26 +3,25 @@
     <gmap-info-window
       :options="infoOptions"
       :position="infoWindowPos"
-      :opened="infoWinOpen"
-      @closeclick="infoWinOpen = false"
+      :opened="infoWindow"
+      @closeclick="infoWindow = false"
     >
-      <template>
-        <span v-if="loading">로딩 중</span>
-        <div v-else>
-          <ul>
-            <li>{{markerData.percent}}%</li>
-            <li>{{markerData.ppm}} ppm</li>
-            <li>{{markerData.temperature}}°C</li>
-          </ul>
-        </div>
-      </template>
+      <h2>{{ infoTitle }}</h2>
+      <span v-if="loading">로딩 중</span>
+      <div v-else>
+        <ul>
+          <li>{{ markers[markerIndex].data.percent }}%</li>
+          <li>{{ markers[markerIndex].data.ppm }} ppm</li>
+          <li>{{ markers[markerIndex].data.temperature }}°C</li>
+        </ul>
+      </div>
     </gmap-info-window>
     <gmap-marker
       :key="index"
       v-for="(marker, index) in markers"
       :position="marker.position"
       :title="marker.title"
-      @click="center = marker.position, toggleInfoWindow(marker, index)"
+      @click="(center = marker.position), toggleInfoWindow(marker, index)"
     ></gmap-marker>
   </gmap-map>
 </template>
@@ -41,29 +40,29 @@ export default {
     return {
       loading: true,
       error: null,
-      markerData: [],
-      center: { lat: 37.351673, lng: 127.955627 },
+      center: { lat: 37.394130, lng: 126.997985 },
       markers: [
         {
           position: {
-            lat: 37.351673,
-            lng: 127.955627
+            lat: 37.394130,
+            lng: 126.997985
           },
-          title: "TEST",
-          infoText: "Mark1"
+          title: "Youngbeom's Home",
+          data: []
         },
         {
           position: {
             lat: 37.351674,
             lng: 127.955627
           },
-          title: "TEST2",
-          infoText: "Mark2"
+          title: "Youngbeom's Grandfather",
+          data: []
         }
       ],
+      markerIndex: 0,
+      infoWindow: false,
       infoWindowPos: null,
-      infoContent: "",
-      infoWinOpen: false,
+      infoTitle: "",
       currentMidx: null,
       infoOptions: {
         pixelOffset: {
@@ -73,23 +72,25 @@ export default {
       }
     };
   },
-  created() {
+
+  mounted() {
     getAPI().then(data => {
-      //eslint-disable-next-line
-      console.log(data);
-      this.markerData = data.data[0];
+      this.markers[0].data = data.data[0];
+      this.markers[1].data = data.data[1];
       this.loading = false;
     });
   },
+
   methods: {
     toggleInfoWindow: function(marker, index) {
+      this.markerIndex = index;
+      this.infoTitle = marker.title;
       this.infoWindowPos = marker.position;
-      this.infoContent = marker.infoText;
 
       if (this.currentMidx == index) {
-        this.infoWinOpen = !this.infoWinOpen;
+        this.infoWindow = !this.infoWindow;
       } else {
-        this.infoWinOpen = true;
+        this.infoWindow = true;
         this.currentMidx = index;
       }
     }
