@@ -24,8 +24,8 @@
             "created_at":"2019-09-01T13:59:11Z",
             "entry_id":34,
             "data":null,
-            "°C":"63",
-            "%":"27",
+            "temperature":"63",
+            "percent":"27",
             "ppm":"5.63\r\n\r\n"
         },
         ...
@@ -44,7 +44,10 @@ async function getAPI() {
     const feed = { ..._feed };
     Object.keys(feed).forEach(key => {
       if (key.slice(0, 5) !== "field") return;
-      feed[channel[key]] = feed[key];
+      let _key = channel[key];
+      if (_key === "°C") _key = "temperature";
+      else if (_key === "%") _key = "percent";
+      feed[_key] = feed[key];
       delete feed[key];
     });
 
