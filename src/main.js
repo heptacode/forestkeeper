@@ -6,10 +6,10 @@ import * as VueGoogleMaps from "vue2-google-maps";
 
 Vue.config.productionTip = false;
 
+// Ref : https://alligator.io/vuejs/vue-google-maps/
 Vue.use(VueGoogleMaps, {
   load: {
-    key: "AIzaSyA8B4NiXqE0c_Y6aDfQmOweb_5ufeGp1BY",
-    libraries: "places" // necessary for places input
+    key: "AIzaSyA8B4NiXqE0c_Y6aDfQmOweb_5ufeGp1BY"
   }
 });
 

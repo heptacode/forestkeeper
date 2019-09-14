@@ -3,7 +3,7 @@
     <v-app-bar app fixed color="#69cca2" dark>
       <v-app-bar-nav-icon></v-app-bar-nav-icon>
 
-      <v-toolbar-title><strong>SafeForest</strong></v-toolbar-title>
+      <v-toolbar-title><strong>Forest Keeper</strong></v-toolbar-title>
 
       <div class="flex-grow-1"></div>
 
@@ -14,7 +14,9 @@
       </nav>
     </v-app-bar>
 
-    <router-view />
+    <v-content>
+      <router-view />
+    </v-content>
   </v-app>
 </template>
 
@@ -25,10 +27,6 @@ html {
 
 html::-webkit-scrollbar {
   display: none;
-}
-
-nav {
-  padding: 30px;
 }
 
 nav a {
