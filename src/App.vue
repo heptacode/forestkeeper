@@ -1,7 +1,7 @@
 <template>
   <v-app class="overflow-hidden">
     <v-app-bar app fixed color="#69cca2" dark>
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
+      <v-icon class="mr-2">mdi-tree-outline</v-icon>
 
       <v-toolbar-title><strong>Forest Keeper</strong></v-toolbar-title>
 
