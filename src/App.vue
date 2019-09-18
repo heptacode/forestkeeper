@@ -10,6 +10,7 @@
       <nav>
         <router-link to="/">홈</router-link>
         <router-link to="/app">앱</router-link>
+        <router-link to="/wind">바람</router-link>
       </nav>
     </v-app-bar>
 

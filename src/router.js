@@ -17,6 +17,11 @@ export default new Router({
       path: "/app",
       name: "service",
       component: () => import("./views/Service.vue")
+    },
+    {
+      path: "/wind",
+      name: "wind",
+      component: () => import("./views/Wind.vue")
     }
   ]
 });
