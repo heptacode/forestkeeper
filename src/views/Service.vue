@@ -1,37 +1,78 @@
 <template>
-  <gmap-map :center="center" :zoom="12" class="gmap">
-    <gmap-info-window
-      :options="infoOptions"
-      :position="infoWindowPos"
-      :opened="infoWindow"
-      @closeclick="infoWindow = false"
-    >
-      <h2>{{ infoTitle }}</h2>
-      <span v-if="loading">로딩 중</span>
-      <div v-else>
-        <ul>
-          <li>{{ markers[markerIndex].data.percent }}%</li>
-          <li>{{ markers[markerIndex].data.ppm }} ppm</li>
-          <li>{{ markers[markerIndex].data.temperature }}°C</li>
-        </ul>
-      </div>
-    </gmap-info-window>
-    <gmap-marker
-      :key="index"
-      v-for="(marker, index) in markers"
-      :position="marker.position"
-      :title="marker.title"
-      @click="(center = marker.position), toggleInfoWindow(marker, index)"
-    ></gmap-marker>
-  </gmap-map>
-</template>
+  <div>
+    <gmap-map :center="center" :zoom="12" class="gmap">
+      <gmap-info-window
+        :options="infoOptions"
+        :position="infoWindowPos"
+        :opened="infoWindow"
+        @closeclick="infoWindow = false"
+        style="width : 30vw"
+      >
+        <h2>{{ infoTitle }}</h2>
+        <span v-if="loading">
+          <v-progress-circular
+            indeterminate
+            color="#69cca2"
+          ></v-progress-circular>
+        </span>
+        <div v-else>
+          <v-simple-table dense>
+            <tr>
+              <th class="text-left">습도</th>
+              <td>{{ markers[markerIndex].data.humi }} &#37;</td>
+            </tr>
+            <tr>
+              <th class="text-left">온도</th>
+              <td>{{ markers[markerIndex].data.temp }} &deg;C</td>
+            </tr>
+            <tr>
+              <th class="text-left">일산화탄소</th>
+              <td>{{ markers[markerIndex].data.co }} ppm</td>
+            </tr>
+            <tr>
+              <th>산불</th>
+              <td class="light-container">
+                <div :class="light_fire"></div>
+              </td>
+            </tr>
+            <tr>
+              <th>벌목</th>
+              <td class="light-container">
+                <div :class="light_timber"></div>
+              </td>
+            </tr>
+          </v-simple-table>
+        </div>
+      </gmap-info-window>
+      <gmap-marker
+        :key="index"
+        v-for="(marker, index) in markers"
+        :position="marker.position"
+        :title="marker.title"
+        @click="(center = marker.position), toggleInfoWindow(marker, index)"
+      ></gmap-marker>
+    </gmap-map>
+    <v-dialog v-model="dialog" max-width="290">
+      <v-card>
+        <v-card-title>
+          <v-icon color="error" class="mr-2">mdi-alert</v-icon>
+          <h3 class="red--text">경고</h3>
+        </v-card-title>
 
-<style scoped>
-.gmap {
-  width: 100vw;
-  height: 92vh;
-}
-</style>
+        <v-card-text>
+          <h3>{{ fire === true ? "산불이 발생하였습니다!" : "벌목 발생하였습니다!" }}</h3>
+        </v-card-text>
+
+        <v-card-actions>
+          <div class="flex-grow-1"></div>
+          <v-btn color="primary" text @click="dialog = false">
+            승인
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
+</template>
 
 <script>
 import getAPI from "../lib/getAPI";
@@ -40,11 +81,11 @@ export default {
     return {
       loading: true,
       error: null,
-      center: { lat: 37.394130, lng: 126.997985 },
+      center: { lat: 37.39413, lng: 126.997985 },
       markers: [
         {
           position: {
-            lat: 37.394130,
+            lat: 37.39413,
             lng: 126.997985
           },
           title: "Youngbeom's Home",
@@ -69,16 +110,37 @@ export default {
           width: 0,
           height: -35
         }
-      }
+      },
+      dialog: false,
+      fire: null,
+      timber: null
     };
   },
 
   mounted() {
-    getAPI().then(data => {
-      this.markers[0].data = data.data[0];
-      this.markers[1].data = data.data[1];
-      this.loading = false;
-    });
+    this.fetch();
+    setInterval(() => {
+      this.fetch();
+    }, 5000);
+  },
+
+  computed: {
+    light_fire() {
+      return {
+        light: true,
+        "light-null": this.fire === null,
+        "light-safe": this.fire == false,
+        "light-unsafe": this.fire == true
+      };
+    },
+    light_timber() {
+      return {
+        light: true,
+        "light-null": this.timber === null,
+        "light-safe": this.timber == false,
+        "light-unsafe": this.timber == true
+      };
+    }
   },
 
   methods: {
@@ -93,7 +155,58 @@ export default {
         this.infoWindow = true;
         this.currentMidx = index;
       }
+    },
+    fetch: function() {
+      console.log("fetch");
+      getAPI().then(data => {
+        for (let i = 0; i < data.data.length - 1; i++) {
+          this.markers[i].data = data.data[i];
+          if (this.markers[i].data.flame == 0) {
+            this.fire = this.dialog = true;
+            console.log("fire:" + this.fire);
+            console.log("dialog : " + this.dialog);
+          } else {
+            this.fire = false;
+          }
+          if (
+            this.markers[i].data.sound == 0 ||
+            this.markers[i].data.vibration == 1
+          ) {
+            this.timber = this.dialog = true;
+          } else {
+            this.timber = false;
+          }
+        }
+        this.loading = false;
+      });
     }
   }
 };
 </script>
+
+<style scoped>
+.gmap {
+  width: 100vw;
+  height: 92vh;
+}
+.light-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 5px 0;
+}
+.light {
+  border-radius: 50%;
+  height: 16px;
+  width: 16px;
+}
+.light-safe {
+  background: rgb(40, 201, 64);
+}
+.light-unsafe {
+  background: rgb(241, 39, 26);
+}
+.light-null {
+  background: rgb(138, 138, 138);
+}
+</style>

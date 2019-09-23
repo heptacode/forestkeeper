@@ -43,10 +43,33 @@ async function getAPI() {
   const feedsMapped = feeds.map(_feed => {
     const feed = { ..._feed };
     Object.keys(feed).forEach(key => {
-      if (key.slice(0, 5) !== "field") return;
+      // if (key.slice(0, 5) !== "field") return;
       let _key = channel[key];
-      if (_key === "°C") _key = "temperature";
-      else if (_key === "%") _key = "percent";
+      // if (_key === "data") _key = "flame";
+      // else if (_key === "°C") _key = "temp";
+      // else if (_key === "%") _key = "humi";
+      // else if (_key === "ppm") _key = "co";
+      // else if (_key === "data") _key = "sound";
+      // else if (_key === "data") _key = "vibration";
+      if(key == "field1"){
+        _key = "flame";
+      }
+      else if(key == "field2"){
+        _key = "humi";
+      }
+      else if(key == "field3"){
+        _key = "temp";
+      }
+      else if(key == "field4"){
+        _key = "co";
+      }
+      else if(key == "field5"){
+        _key = "sound";
+      }
+      else if(key == "field6"){
+        _key = "vibration";
+      }
+      // console.log(key);
       feed[_key] = feed[key];
       delete feed[key];
     });
