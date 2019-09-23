@@ -60,7 +60,13 @@
         </v-card-title>
 
         <v-card-text>
-          <h3>{{ fire === true ? "산불이 발생하였습니다!" : "벌목 발생하였습니다!" }}</h3>
+          <h3>
+            {{
+              fire === true
+                ? "산불이 발생하였습니다!"
+                : "벌목이 발생하였습니다!"
+            }}
+          </h3>
         </v-card-text>
 
         <v-card-actions>
@@ -81,24 +87,32 @@ export default {
     return {
       loading: true,
       error: null,
-      center: { lat: 37.39413, lng: 126.997985 },
+      center: { lat: 38.1270868, lng: 128.4525135 },
       markers: [
         {
           position: {
-            lat: 37.39413,
-            lng: 126.997985
+            lat: 38.1270868,
+            lng: 128.4525135
           },
-          title: "Youngbeom's Home",
-          data: []
-        },
-        {
-          position: {
-            lat: 37.351674,
-            lng: 127.955627
-          },
-          title: "Youngbeom's Grandfather",
+          title: "소청대피소",
           data: []
         }
+        // {
+        //   position: {
+        //     lat: 37.39413,
+        //     lng: 126.997985
+        //   },
+        //   title: "Youngbeom's Home",
+        //   data: []
+        // },
+        // {
+        //   position: {
+        //     lat: 37.351674,
+        //     lng: 127.955627
+        //   },
+        //   title: "Youngbeom's Grandfather",
+        //   data: []
+        // }
       ],
       markerIndex: 0,
       infoWindow: false,
@@ -144,6 +158,9 @@ export default {
   },
 
   methods: {
+    focusToCenter: function() {
+      this.center = { lat: 38.1270868, lng: 128.4525135 };
+    },
     toggleInfoWindow: function(marker, index) {
       this.markerIndex = index;
       this.infoTitle = marker.title;
@@ -157,14 +174,13 @@ export default {
       }
     },
     fetch: function() {
-      console.log("fetch");
+      this.focusToCenter();
       getAPI().then(data => {
         for (let i = 0; i < data.data.length - 1; i++) {
           this.markers[i].data = data.data[i];
           if (this.markers[i].data.flame == 0) {
+            this.focusToCenter();
             this.fire = this.dialog = true;
-            console.log("fire:" + this.fire);
-            console.log("dialog : " + this.dialog);
           } else {
             this.fire = false;
           }
@@ -172,6 +188,7 @@ export default {
             this.markers[i].data.sound == 0 ||
             this.markers[i].data.vibration == 1
           ) {
+            this.focusToCenter();
             this.timber = this.dialog = true;
           } else {
             this.timber = false;
