@@ -77,7 +77,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-snackbar v-model="snackbar" color="error">
+    <v-snackbar v-model="snackbar" :color="fire || timber ? 'error' : 'success'">
       <v-icon color="white">mdi-alert</v-icon>
       <div class="ml-3">{{ text_snackbar }}</div>
       <div class="flex-grow-1"></div>
@@ -133,8 +133,8 @@ export default {
       },
       dialog: false,
       snackbar: false,
-      fire: null,
-      timber: null,
+      fire: false,
+      timber: false,
       ignore: false
     };
   },
@@ -177,8 +177,10 @@ export default {
         return "[소청대피소] 산불 및 벌목 경고";
       } else if (this.fire) {
         return "[소청대피소] 산불 경고";
-      } else {
+      } else if (this.timber) {
         return "[소청대피소] 벌목 경고";
+      } else {
+        return "[소청대피소] 경고 해제";
       }
     }
   },
