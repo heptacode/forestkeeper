@@ -61,26 +61,32 @@
 
         <v-card-text>
           <h3>
-            {{
-              fire === true
-                ? "소청대피소에서 산불이 발생하였습니다!"
-                : "소청대피소에서 벌목이 발생하였습니다!"
-            }}
+            {{ text_dialog }}
           </h3>
         </v-card-text>
 
         <v-card-actions>
           <div class="flex-grow-1"></div>
-          <v-btn color="primary" text @click="dialog = false">
+          <v-btn
+            color="primary"
+            text
+            @click="(dialog = false), (snackbar = true), (ignore = true)"
+          >
             승인
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-snackbar v-model="snackbar" color="error">
+      <v-icon color="white">mdi-alert</v-icon>
+      <div class="ml-3">{{ text_snackbar }}</div>
+      <div class="flex-grow-1"></div>
+    </v-snackbar>
   </div>
 </template>
 
 <script>
+console.clear();
 import getAPI from "../lib/getAPI";
 export default {
   data() {
@@ -126,8 +132,10 @@ export default {
         }
       },
       dialog: false,
+      snackbar: false,
       fire: null,
-      timber: null
+      timber: null,
+      ignore: false
     };
   },
 
@@ -143,17 +151,35 @@ export default {
       return {
         light: true,
         "light-null": this.fire === null,
-        "light-safe": this.fire == false,
-        "light-unsafe": this.fire == true
+        "light-safe": this.fire === false,
+        "light-unsafe": this.fire === true
       };
     },
     light_timber() {
       return {
         light: true,
         "light-null": this.timber === null,
-        "light-safe": this.timber == false,
-        "light-unsafe": this.timber == true
+        "light-safe": this.timber === false,
+        "light-unsafe": this.timber === true
       };
+    },
+    text_dialog() {
+      if (this.fire && this.timber) {
+        return "소청대피소에서 산불과 벌목이 발생하였습니다!";
+      } else if (this.fire) {
+        return "소청대피소에서 산불이 발생하였습니다!";
+      } else {
+        return "소청대피소에서 벌목이 발생하였습니다!";
+      }
+    },
+    text_snackbar() {
+      if (this.fire && this.timber) {
+        return "[소청대피소] 산불 및 벌목 경고";
+      } else if (this.fire) {
+        return "[소청대피소] 산불 경고";
+      } else {
+        return "[소청대피소] 벌목 경고";
+      }
     }
   },
 
@@ -178,8 +204,12 @@ export default {
         for (let i = 0; i < data.data.length - 1; i++) {
           this.markers[i].data = data.data[i];
           if (this.markers[i].data.flame == 0) {
-            this.focusToCenter();
-            this.fire = this.dialog = true;
+            if (this.ignore === false) {
+              this.focusToCenter();
+              this.fire = this.dialog = true;
+            } else {
+              this.fire = this.snackbar = true;
+            }
           } else {
             this.fire = false;
           }
@@ -187,8 +217,12 @@ export default {
             this.markers[i].data.sound == 0 ||
             this.markers[i].data.vibration == 1
           ) {
-            this.focusToCenter();
-            this.timber = this.dialog = true;
+            if (this.ignore === false) {
+              this.focusToCenter();
+              this.timber = this.dialog = true;
+            } else {
+              this.timber = this.snackbar = true;
+            }
           } else {
             this.timber = false;
           }
