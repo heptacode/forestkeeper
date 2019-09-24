@@ -135,7 +135,7 @@ export default {
     this.fetch();
     setInterval(() => {
       this.fetch();
-    }, 5000);
+    }, 3000);
   },
 
   computed: {
@@ -174,7 +174,6 @@ export default {
       }
     },
     fetch: function() {
-      this.focusToCenter();
       getAPI().then(data => {
         for (let i = 0; i < data.data.length - 1; i++) {
           this.markers[i].data = data.data[i];
@@ -204,7 +203,7 @@ export default {
 <style scoped>
 .gmap {
   width: 100vw;
-  height: 92vh;
+  height: 93vh;
 }
 .light-container {
   display: flex;
